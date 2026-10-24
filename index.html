@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tayem Elbendary · Flash Cards</title>
+<style>
+:root{--bg:#0f1b2d;--bg2:#162a46;--card:#ffffff;--ink:#14263f;--muted:#5d6f88;--accent:#8b8cff;--accent2:#ff7a59;--gold:#ffc857}
+*{box-sizing:border-box;margin:0}
+body{min-height:100vh;font-family:"Segoe UI",system-ui,Arial,sans-serif;color:#fff;background:radial-gradient(1200px 600px at 20% -10%,#24476f 0%,transparent 60%),radial-gradient(900px 500px at 100% 110%,#0f6b6b 0%,transparent 55%),var(--bg);display:flex;flex-direction:column;align-items:center;padding:18px 16px 28px}
+header{width:100%;max-width:760px;display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.brand{font-weight:800;letter-spacing:.3px}
+.brand small{display:block;font-weight:500;color:#9db3d1;font-size:12px}
+.count{font-size:14px;color:#cfe0f5;background:#ffffff14;padding:6px 12px;border-radius:99px}
+.bar{width:100%;max-width:760px;height:6px;background:#ffffff1f;border-radius:9px;overflow:hidden;margin-bottom:16px}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--gold));transition:width .35s}
+.chips{width:100%;max-width:760px;display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.chip{border:1px solid #ffffff30;background:#ffffff0d;color:#dbe8f8;padding:6px 12px;border-radius:99px;font-size:13px;cursor:pointer}
+.chip.on{background:var(--accent);border-color:var(--accent);color:#04201d;font-weight:700}
+.stage{width:100%;max-width:760px;perspective:1600px;flex:1;display:flex;align-items:center}
+.card{position:relative;width:100%;height:min(66vh,520px);min-height:380px;transform-style:preserve-3d;transition:transform .6s cubic-bezier(.2,.8,.2,1);cursor:pointer}
+.card.flip{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;border-radius:26px;backface-visibility:hidden;-webkit-backface-visibility:hidden;padding:30px 32px;display:flex;flex-direction:column;box-shadow:0 24px 60px #00000055}
+.front{background:linear-gradient(150deg,#ffffff,#eaf6f5);color:var(--ink);justify-content:center;align-items:center;text-align:center;border-top:8px solid var(--accent)}
+.front.scam{border-top-color:var(--accent2);background:linear-gradient(150deg,#fff,#fff0ea)}
+.front .tag{position:absolute;top:22px;left:28px;font-size:12px;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;color:var(--accent)}
+.front.scam .tag{color:var(--accent2)}
+.front .emoji{font-size:74px;line-height:1;margin-bottom:14px}
+.front h2{font-size:clamp(26px,5vw,40px);line-height:1.15}
+.front p{margin-top:12px;color:var(--muted);font-size:17px}
+.front .hint{position:absolute;bottom:20px;font-size:13px;color:var(--muted);opacity:.85}
+.back{transform:rotateY(180deg);background:linear-gradient(160deg,#16314f,#10233a);border:1px solid #ffffff22;overflow:auto}
+.back h3{font-size:13px;letter-spacing:1.4px;text-transform:uppercase;color:var(--gold);margin-bottom:14px}
+.back p{font-size:clamp(18px,3.2vw,23px);line-height:1.5;margin-bottom:12px;color:#f2f7ff}
+.back b{color:var(--gold)}
+.back ul{list-style:none;padding:0}
+.back li{font-size:clamp(17px,3vw,21px);line-height:1.45;margin-bottom:10px;padding-left:34px;position:relative;color:#f2f7ff}
+.back li::before{content:attr(data-n);position:absolute;left:0;top:2px;width:24px;height:24px;border-radius:50%;background:var(--accent);color:#04201d;font-size:13px;font-weight:800;display:grid;place-items:center}
+.cue{font-style:italic;color:#9db3d1;font-size:16px;margin-top:4px}
+.nav{width:100%;max-width:760px;display:flex;gap:12px;margin-top:18px}
+button.b{flex:1;padding:15px;border:0;border-radius:16px;font-size:16px;font-weight:700;cursor:pointer;background:#ffffff1a;color:#fff}
+button.b:hover{background:#ffffff2e}
+button.b.main{background:linear-gradient(90deg,var(--accent),#23c9a0);color:#04201d}
+button.b:disabled{opacity:.35;cursor:default}
+.keys{margin-top:12px;font-size:12px;color:#8fa6c6}
+@media(max-width:520px){.face{padding:24px 20px}.front .emoji{font-size:58px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">Tayem Elbendary<small>Safe on the Net · Cyberbullying cards</small></div>
+  <div class="count" id="count">1 / 1</div>
+</header>
+<div class="bar"><i id="bar"></i></div>
+<div class="chips" id="chips"></div>
+<div class="stage"><div class="card" id="card" onclick="flip()"></div></div>
+<div class="nav">
+  <button class="b" id="prev" onclick="go(-1)">← Back</button>
+  <button class="b main" onclick="flip()">Flip card</button>
+  <button class="b" id="next" onclick="go(1)">Next →</button>
+</div>
+<div class="keys">Keys: ← → to move · Space to flip</div>
+
+<script>
+const S=[{"sec": "Start", "e": "👋", "t": "Hello!", "h": "Introduce yourself", "b": ["Thanks, Mahmoud! Hi everyone, I'm Tayem. My topic is <b>cyberbullying</b>."]}, {"sec": "What is it", "e": "💬", "t": "What is it?", "h": "Not a joke", "b": ["Bullying online is <b>not a joke</b>.", "It means hurting someone on purpose with messages, photos, or comments.", "It usually happens again and again, and a lot of people can see it."]}, {"sec": "What is it", "e": "👀", "t": "What does it look like?", "h": "6 examples", "list": ["<b>Threats and insults</b> in chats.", "<b>Sharing photos or secrets</b> without permission.", "<b>Fake accounts</b> pretending to be someone.", "<b>Excluding</b> someone from a group or game on purpose.", "<b>Cruel comments.</b> Saying \"I was just joking\" doesn't fix the hurt.", "<b>Bad behavior in online games.</b> That is bullying too."]}, {"sec": "What is it", "e": "🏠", "t": "Why is it worse?", "h": "Than bullying in person", "list": ["It <b>follows you home</b>.", "It <b>stays recorded</b>.", "A <b>huge audience</b> can see it.", "Sometimes the bully <b>hides behind a fake account</b>."]}, {"sec": "Think", "e": "🤔", "t": "Think before you send", "h": "Ask yourself first", "b": ["Before you type a comment, ask:", "<b>\"Would I say this to their face?\"</b>"]}, {"sec": "Think", "e": "💡", "t": "The THINK rule", "h": "T · H · I · N · K", "list": ["<b>T</b>rue", "<b>H</b>elpful", "<b>I</b>nspiring", "<b>N</b>ecessary", "<b>K</b>ind"], "after": "If the answer to any of these is \"no\", <b>don't send it</b>."}, {"sec": "Think", "e": "🎮", "t": "What would you do?", "h": "Class game", "b": ["Now let's play \"What would you do?\".", "Look at each situation and choose the best action.", "<i class='cue'>Read each situation. Ask the class to vote. Then show the answer.</i>"]}, {"sec": "Help", "e": "🆘", "t": "If it happens to you", "h": "4 steps", "list": ["<b>Don't reply.</b> A reaction gives the bully exactly what they want.", "<b>Save the proof.</b> Take screenshots of the messages, the account name, and the date.", "<b>Block and report.</b> Use the report button in the app.", "<b>Tell someone you trust,</b> like a parent, a teacher, or a counselor. That is not weakness. That is the smartest choice."]}, {"sec": "Help", "e": "🦸", "t": "If you are watching", "h": "Be the helper", "b": ["<b>Don't like it. Don't share it.</b>", "Send the person a kind message and report it."]}, {"sec": "Help", "e": "📞", "t": "Need help?", "h": "Egypt child helpline", "b": ["In Egypt, the child helpline is <b>16000</b>.", "If you need someone to listen, call."]}, {"sec": "End", "e": "🤝", "t": "Pass to Mohammed", "h": "Say this, then step back", "b": ["Now Mohammed will tell us why our phones are so hard to put down."]}];
+const secs=["All",...new Set(S.map(x=>x.sec))];
+let i=0,filter="All",deck=S;
+const $=id=>document.getElementById(id);
+function chips(){ $("chips").innerHTML=secs.map(s=>`<button class="chip ${s===filter?'on':''}" onclick="setF('${s}')">${s}</button>`).join("") }
+function setF(s){filter=s;deck=s==="All"?S:S.filter(x=>x.sec===s);i=0;chips();render()}
+function render(){
+  const c=deck[i];
+  let back="";
+  if(c.list){back=`<ul>${c.list.map((l,k)=>`<li data-n="${k+1}">${l}</li>`).join("")}</ul>`+(c.after?`<p style="margin-top:14px">${c.after}</p>`:"")}
+  else back=c.b.map(t=>t.startsWith("<i")?t:`<p>${t}</p>`).join("")+(c.after?`<p style="margin-top:14px">${c.after}</p>`:"");
+  $("card").className="card";
+  $("card").innerHTML=`
+   <div class="face front ${c.scam?'scam':''}"><span class="tag">${c.sec}</span><div class="emoji">${c.e}</div><h2>${c.t}</h2><p>${c.h}</p><span class="hint">Tap to read what to say ↻</span></div>
+   <div class="face back"><h3>${c.t}</h3>${back}</div>`;
+  $("count").textContent=`${i+1} / ${deck.length}`;
+  $("bar").style.width=((i+1)/deck.length*100)+"%";
+  $("prev").disabled=i===0; $("next").disabled=i===deck.length-1;
+}
+function flip(){$("card").classList.toggle("flip")}
+function go(d){const n=i+d;if(n<0||n>=deck.length)return;i=n;render()}
+document.addEventListener("keydown",e=>{if(e.key==="ArrowRight")go(1);else if(e.key==="ArrowLeft")go(-1);else if(e.key===" "){e.preventDefault();flip()}});
+chips();render();
+</script>
+</body>
+</html>
